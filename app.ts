@@ -1,10 +1,10 @@
 var operation = '';
 var buttons = [].slice.call(document.querySelectorAll('.button'));
-var displayElem = document.querySelector('.display');
+var displayElem = document.querySelector('.display') as HTMLElement;
 var calc = 0;
 var display = '';
 var previousOperation = '';
-var previousInput = {};
+var previousInput: InputType = { value: '', type: '' };
 
 buttons.forEach(function (button) {
   button.addEventListener('click', onButtonClick);
@@ -30,8 +30,16 @@ function precisionRound(number, precision) {
   return Math.round(number * factor) / factor;
 }
 
+interface InputType {
+  type: string,
+  value: string
+}
+
 function inputType(input) {
-  var inputObj = {};
+  var inputObj: InputType = {
+    type: '',
+    value: '',
+  };
 
   inputObj.type = input.dataset.type;
   inputObj.value = input.dataset[input.dataset.type];
@@ -99,7 +107,7 @@ function onButtonClick() {
     case 'clear':
       calc = 0;
       display = '';
-      previousInput = {};
+      previousInput = { value: '', type: '' };
       operation = '';
       previousOperation = '';
       break;
