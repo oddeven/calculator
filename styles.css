@@ -1,0 +1,70 @@
+body {
+    font: normal 20px/1.5 "Fira Sans", "Helvetica Neue", sans-serif;
+    font-weight: 400;
+    padding: 20px 0;
+}
+
+.container * {
+    box-sizing: border-box;
+}
+
+.calculator {
+    display: flex;
+    flex-wrap: wrap;
+    width: 240px;
+    margin: 0 auto;
+    color: #4b4b4b;
+}
+
+.display {
+    width: 100%;
+    height: 70px;
+    color: white;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 70px;
+    text-align: right;
+    padding-right: 10px;
+    background-color: #181818cc;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border: 1px solid #1818188f;
+    border-bottom: none;
+    letter-spacing: 2px;
+    word-wrap: break-word;
+}
+
+.button {
+    flex-basis: 25%;
+    height: 60px;
+    background-color: #EEEEEE;
+    text-align: center;
+    line-height: 60px;
+    border-left: 1px solid #1818188f;
+    border-bottom: 1px solid #1818188f;
+    cursor: pointer;
+}
+
+.button.clear {
+    flex-basis: 75%;
+}
+
+.button.zero {
+    flex-basis: 50%;
+    border-bottom-left-radius: 5px;
+}
+
+.button.operation,
+.button.evaluate {
+    background-color: #FF9800;
+    border-right: 1px solid #1818188f;
+    color: #FAFAFA;
+}
+
+.button.evaluate {
+    border-bottom-right-radius: 5px;
+}
+
+.button:active {
+    background-color: #c6c6c6;
+}
