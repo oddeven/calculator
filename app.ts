@@ -1,16 +1,31 @@
-var operation = '';
-var buttons = [].slice.call(document.querySelectorAll('.button'));
-var displayElem = document.querySelector('.display') as HTMLElement;
-var calc = 0;
-var display = '';
-var previousOperation = '';
-var previousInput: InputType = { value: '', type: '' };
+const buttons = Array.from(document.querySelectorAll('.button'));
+const displayElem = document.querySelector('.display') as HTMLElement;
+let operation = '';
+let calc = 0;
+let display = '';
+let previousOperation = '';
+
+enum ActionType {
+  numeric,
+  operator,
+  decimal,
+  evaluate,
+  clear,
+  none
+}
+
+interface InputType {
+  type: ActionType,
+  value: string
+}
+
+let previousInput: InputType = { type: ActionType.none, value: '' };
 
 buttons.forEach(function (button) {
   button.addEventListener('click', onButtonClick);
 });
 
-var operations = {
+const operations = {
   add: function (a, b) {
     return a + b;
   },
@@ -25,54 +40,49 @@ var operations = {
   }
 };
 
-function precisionRound(number, precision) {
-  var factor = Math.pow(10, precision);
+function precisionRound(number, precision = 2) {
+  const factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
 }
 
-interface InputType {
-  type: string,
-  value: string
-}
-
 function inputType(input) {
-  var inputObj: InputType = {
-    type: '',
+  const inputObj: InputType = {
+    type: ActionType.none,
     value: '',
   };
 
-  inputObj.type = input.dataset.type;
+  inputObj.type = +ActionType[input.dataset.type];
   inputObj.value = input.dataset[input.dataset.type];
 
-  if (inputObj.type === 'numeric') {
+  if (inputObj.type === ActionType.numeric) {
     inputObj.value = input.textContent;
   }
-  if (inputObj.type === 'operator') {
+  if (inputObj.type === ActionType.operator) {
     inputObj.value = input.dataset.operator;
   }
   return inputObj;
 }
 
 function onButtonClick() {
-  var input = inputType(this);
+  const input = inputType(this);
   switch (input.type) {
-    case 'numeric':
-      if (previousInput.type === 'numeric' || previousInput.type === 'decimal') {
+    case ActionType.numeric:
+      if (previousInput.type === ActionType.numeric || previousInput.type === ActionType.decimal) {
         display = display + input.value;
       } else {
         display = input.value;
-        if (previousInput.type === 'evaluate') {
+        if (previousInput.type === ActionType.evaluate) {
           calc = 0;
           previousOperation = '';
         }
       }
       break;
-    case 'operator':
+    case ActionType.operator:
       operation = input.value;
       if (!previousOperation) {
         previousOperation = operation;
       }
-      var displayValue = precisionRound(parseFloat(display), 2);
+      const displayValue = precisionRound(parseFloat(display));
       if (calc === 0) {
         if (operation === 'multiply') {
           calc = 1;
@@ -82,7 +92,7 @@ function onButtonClick() {
           calc = displayValue * 2;
         }
       }
-      if (previousInput.type !== 'operator') {
+      if (previousInput.type !== ActionType.operator) {
         if (previousOperation !== operation) {
           calc = operations[previousOperation](calc, displayValue);
         } else {
@@ -92,22 +102,22 @@ function onButtonClick() {
       display = String(calc);
       previousOperation = operation;
       break;
-    case 'decimal':
+    case ActionType.decimal:
       if (display.indexOf('.') === -1) {
         display += '.';
       }
       break;
-    case 'evaluate':
-      if (previousInput.type !== 'evaluate') {
-        var displayValue = precisionRound(parseFloat(display), 2);
+    case ActionType.evaluate:
+      if (previousInput.type !== ActionType.evaluate) {
+        const displayValue = precisionRound(parseFloat(display));
         calc = operations[operation](calc, displayValue);
         display = String(calc);
       }
       break;
-    case 'clear':
+    case ActionType.clear:
       calc = 0;
       display = '';
-      previousInput = { value: '', type: '' };
+      previousInput = { type: ActionType.none, value: '' };
       operation = '';
       previousOperation = '';
       break;
