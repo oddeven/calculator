@@ -8,7 +8,7 @@ let operation = '';
 let calc = 0;
 let display = '';
 let firstOperator = true;
-let previousInput: InputType;
+let previousInput: InputType = new InputType();
 
 buttons.forEach(function (button) {
   button.addEventListener('click', onButtonClick);
