@@ -7,26 +7,21 @@ export enum ActionType {
   none
 }
 
-export interface InputType {
-  type: ActionType,
-  value: string
+export class InputType {
+  type: ActionType = ActionType.none;
+  value: string = '';
 }
 
-export function inputType(input: HTMLElement) {
-  const inputObj: InputType = {
-    type: ActionType.none,
-    value: '',
-  };
-
-  const inputType = input.dataset.type as string;
-  inputObj.type = ActionType[inputType];
-  inputObj.value = input.dataset[inputType] as string;
-
+export function inputType(input: HTMLElement): InputType {
+  const inputObj: InputType = new InputType();
+  const type = input.dataset.type || '';
+  inputObj.type = ActionType[type];
+  inputObj.value = input.dataset[type] || '';
   if (inputObj.type === ActionType.numeric) {
-    inputObj.value = input.textContent as string;
+    inputObj.value = input.textContent || '';
   }
   if (inputObj.type === ActionType.operator) {
-    inputObj.value = input.dataset.operator as string;
+    inputObj.value = input.dataset.operator || '';
   }
   return inputObj;
 }
