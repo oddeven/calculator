@@ -3,7 +3,7 @@ var buttons = [].slice.call(document.querySelectorAll('.button'));
 var displayElem = document.querySelector('.display');
 var calc = 0;
 var display = '';
-var previousOperation = '';
+var firstOperator = true;
 var previousInput = {};
 
 buttons.forEach(function (button) {
@@ -32,10 +32,8 @@ function precisionRound(number, precision) {
 
 function inputType(input) {
   var inputObj = {};
-
   inputObj.type = input.dataset.type;
   inputObj.value = input.dataset[input.dataset.type];
-
   if (inputObj.type === 'numeric') {
     inputObj.value = input.textContent;
   }
@@ -49,61 +47,64 @@ function onButtonClick() {
   var input = inputType(this);
   switch (input.type) {
     case 'numeric':
-      if (previousInput.type === 'numeric' || previousInput.type === 'decimal') {
-        display = display + input.value;
-      } else {
-        display = input.value;
-        if (previousInput.type === 'evaluate') {
-          calc = 0;
-          previousOperation = '';
-        }
-      }
+      handleNumeric(input);
       break;
     case 'operator':
-      operation = input.value;
-      if (!previousOperation) {
-        previousOperation = operation;
-      }
-      var displayValue = precisionRound(parseFloat(display), 2);
-      if (calc === 0) {
-        if (operation === 'multiply') {
-          calc = 1;
-        } else if (operation === 'divide') {
-          calc = displayValue * displayValue;
-        } else if (operation === 'subtract') {
-          calc = displayValue * 2;
-        }
-      }
-      if (previousInput.type !== 'operator') {
-        if (previousOperation !== operation) {
-          calc = operations[previousOperation](calc, displayValue);
-        } else {
-          calc = operations[operation](calc, displayValue);
-        }
-      }
-      display = String(calc);
-      previousOperation = operation;
+      handleOperator(input);
       break;
     case 'decimal':
-      if (display.indexOf('.') === -1) {
-        display += '.';
-      }
+      // optional: add decimal support
       break;
     case 'evaluate':
-      if (previousInput.type !== 'evaluate') {
-        var displayValue = precisionRound(parseFloat(display), 2);
-        calc = operations[operation](calc, displayValue);
-        display = String(calc);
-      }
+      handleEvaluate();
       break;
     case 'clear':
-      calc = 0;
-      display = '';
-      previousInput = {};
-      operation = '';
-      previousOperation = '';
+      handleClear();
       break;
   }
+  console.info('Pressed ' + input.type + ' with value: ' + input.value);
   previousInput = input;
   displayElem.textContent = display ? display : '0';
+}
+
+function handleNumeric(input) {
+  if (previousInput.type === 'numeric') {
+    display += input.value;
+  } else {
+    display = input.value;
+  }
+}
+
+function handleOperator(input) {
+  if (display === '') {
+    return;
+  }
+  operation = input.value;
+  var displayValue = precisionRound(parseFloat(display), 2);
+  if (!firstOperator) {
+    calc = operations[input.value](calc, displayValue);
+    display = String(calc);
+  } else {
+    calc = displayValue;
+  }
+  firstOperator = false;
+}
+
+function handleEvaluate() {
+  if (display === '') {
+    return;
+  }
+  if (previousInput.type !== 'evaluate') {
+    var displayValue = precisionRound(parseFloat(display), 2);
+    calc = operations[operation](calc, displayValue);
+    display = String(calc);
+  }
+}
+
+function handleClear() {
+  calc = 0;
+  display = '';
+  operation = '';
+  previousInput = {};
+  firstOperator = true;
 }
